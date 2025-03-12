@@ -1,0 +1,88 @@
+import mysql.connector
+
+# Database connection configuration
+db_config = {
+    "host": "localhost",
+    "user": "note_user",
+    "password": "password123",
+    "database": "notes_db"
+}
+
+def connect_db():
+    return mysql.connector.connect(**db_config)
+
+def add_note(title, content):
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("INSERT INTO notes (title, content) VALUES (%s, %s)", (title, content))
+    conn.commit()
+    
+    print("Note added successfully!")
+    conn.close()
+
+def view_notes():
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * FROM notes")
+    notes = cursor.fetchall()
+    
+    conn.close()
+    
+    if notes:
+        for note in notes:
+            print(f"ID: {note[0]}, Title: {note[1]}, Created At: {note[3]}\nContent: {note[2]}\n")
+    else:
+        print("No notes found.")
+
+def update_note(note_id, new_title, new_content):
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("UPDATE notes SET title = %s, content = %s WHERE id = %s", (new_title, new_content, note_id))
+    conn.commit()
+    
+    print("Note updated successfully!")
+    conn.close()
+
+def delete_note(note_id):
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("DELETE FROM notes WHERE id = %s", (note_id,))
+    conn.commit()
+    
+    print("Note deleted successfully!")
+    conn.close()
+
+if __name__ == "__main__":
+    while True:
+        print("\nMySQL-Powered Note-Taking App")
+        print("1. Add Note")
+        print("2. View Notes")
+        print("3. Update Note")
+        print("4. Delete Note")
+        print("5. Exit")
+        
+        choice = input("Choose an option: ")
+        
+        if choice == "1":
+            title = input("Enter note title: ")
+            content = input("Enter note content: ")
+            add_note(title, content)
+        elif choice == "2":
+            view_notes()
+        elif choice == "3":
+            note_id = input("Enter note ID to update: ")
+            new_title = input("Enter new title: ")
+            new_content = input("Enter new content: ")
+            update_note(note_id, new_title, new_content)
+        elif choice == "4":
+            note_id = input("Enter note ID to delete: ")
+            delete_note(note_id)
+        elif choice == "5":
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice. Please try again.")
